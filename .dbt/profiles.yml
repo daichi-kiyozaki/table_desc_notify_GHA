@@ -1,0 +1,11 @@
+# ci/profiles.yml
+# ダミーx
+default:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: dummy
+      dataset: dummy
+      keyfile: dummy.json
