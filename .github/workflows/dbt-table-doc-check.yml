@@ -23,7 +23,7 @@ jobs:
 
       # manifest.json を生成（数秒で完了）
       - name: Parse dbt project
-        run: dbt parse
+        run: dbt parse --profiles-dir ./.dbt
 
       # テーブル description が無ければ exit 1
       - name: Enforce table descriptions
