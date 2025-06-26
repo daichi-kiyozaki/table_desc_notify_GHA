@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: raw
+    tables:
+      - name: stg_customers
+        description: "顧客ディメンション（加工後）"
+        columns:
+          - name: customer_id
+            description: "顧客一意 ID"
+          - name: first_name
+            description: "名"
+          - name: last_name
+            description: "姓"
+          - name: created_at
+            description: "レコード作成日時"
+      - name: stg_orders
+        description: "受注明細ファクト（加工後）"
+        columns:
+          - name: order_id
+            description: "注文 ID（主キー）"
+          - name: customer_id
+            description: "注文者の顧客 ID"
+          - name: order_date
+            description: "注文日"
+          - name: order_total
+            description: "注文金額"
