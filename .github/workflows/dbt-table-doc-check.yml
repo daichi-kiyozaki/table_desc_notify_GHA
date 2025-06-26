@@ -1,0 +1,40 @@
+name: dbt-table-doc-check
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check_doc:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install core tools
+        run: |
+          pip install "dbt-core=1.8" "dbt-coverage=0.3"
+
+      # manifest.json を生成（数秒で完了）
+      - name: Parse dbt project
+        run: dbt parse
+
+      # テーブル description が無ければ exit 1
+      - name: Enforce table descriptions
+        run: |
+          dbt-coverage compute doc \
+            --cov-fail-under 1.0 \
+            --cov-format markdown
+
+      # (任意) PR に結果を貼る
+      - name: Comment on PR
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ steps.enforce.outputs.stdout }}
