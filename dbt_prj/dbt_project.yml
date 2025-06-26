@@ -1,0 +1,5 @@
+name: table_desc_demo
+version: 1.0
+model-paths: ["models"]
+profile: default
+require-dbt-version: ">=1.8.0"

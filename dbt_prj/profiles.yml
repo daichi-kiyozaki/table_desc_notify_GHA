@@ -1,5 +1,4 @@
 # ci/profiles.yml
-# ダミーx
 default:
   target: dev
   outputs:
