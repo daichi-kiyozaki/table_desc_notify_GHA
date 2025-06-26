@@ -19,7 +19,7 @@ jobs:
 
       - name: Install core tools
         run: |
-          pip install "dbt-core=1.8" "dbt-coverage=0.3"
+          pip install "dbt-core==1.8" "dbt-coverage==0.3"
 
       # manifest.json を生成（数秒で完了）
       - name: Parse dbt project
