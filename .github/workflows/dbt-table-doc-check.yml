@@ -1,51 +1,29 @@
-name: dbt-checkpoint
-
-on:
-  push:
-  pull_request:
-    branches:
-      - main
-
+name: dbt-table-doc-check
+on: push
 jobs:
-  path-filter:
-    uses: ./.github/workflows/wc-path-filter.yaml
-    permissions:
-      id-token: write
-      pull-requests: write
-      contents: write
-
-  dbt-checkpoint:
+  check_doc:
     runs-on: ubuntu-latest
-    env:
-      ACCOUNT: ${{ vars.ACCOUNT }}
-      DATABASE: ${{ vars.DATABASE }}
-      SCHEMA: ${{ vars.SCHEMA }}
-      USER: ${{ vars.USER }}
-      PASSWORD: ${{ secrets.PASSWORD }}
-      ROLE: ${{ vars.ROLE }}
-      WAREHOUSE: ${{ vars.WAREHOUSE }}
+    permissions:
+      contents: read
+      pull-requests: write
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v2
-
-      - name: Get all changed yaml files
-        id: changed-yaml-files
-        uses: tj-actions/changed-files@0c6f2ac4885216b1830ecbcc3573209980c97716 # v41
+      - uses: actions/setup-python@v5
         with:
-          files: |
-            *.yml
-          base_sha: ${{ inputs.base_ref }}
+          python-version: '3.10'
 
-
-      - name: Run dbt checkpoint
+      - name: Install core tools
         run: |
-          pip install dbt-core = "==1.8.0"
-          pip install dbt-bigquery = "==1.8.0"
-          pip install precommit
+          pip install "dbt-core==1.8" "dbt-bigqyert==1.8" "pre-commit"
 
-      - name: Run dbt checkpoint
+      - name: Parse dbt project
+        run: |
+          cd dbt_prj
+          dbt parse
+
+      # テーブル description が無ければ exit 1
+      - name: Enforce table descriptions
         run: |
           pre-commit run

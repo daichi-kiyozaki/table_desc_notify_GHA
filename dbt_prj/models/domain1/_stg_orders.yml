@@ -2,7 +2,6 @@ version: 2
 
 models:
   - name: stg_order
-    description: "受注明細テーブル。raw.orders を整形。"
     columns:
       - name: order_id
         description: "注文 ID（主キー）"
