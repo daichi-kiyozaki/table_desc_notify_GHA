@@ -1,38 +1,31 @@
-{{
-    config(
-        materialized='incremental',
-        unique_key='order_id'
-    )
-}}
+with
 
-with source as (
+source as (
 
-    {#-
-    Normally we would select from the table here, but we are using seeds to load
-    our data in this project
-    #}
-    select * from {{ ref('raw_orders') }}
-
-    where order_date = cast( '2018-01-01' as date )
-
-{% if is_incremental() %}
-
-    and updated_at > (select max( updated_at ) from {{ this }})
-
-{% endif %}
+    select * from {{ source('ecom', 'raw_orders') }}
 
 ),
 
 renamed as (
 
     select
+
+        ----------  ids
         id as order_id,
-        user_id as customer_id,
-        order_date,
-        status,
-        created_at,
-        updated_at,
-        current_timestamp as loaded_at
+        store_id as location_id,
+        customer as customer_id,
+
+        ---------- numerics
+        subtotal as subtotal_cents,
+        tax_paid as tax_paid_cents,
+        order_total as order_total_cents,
+        {{ cents_to_dollars('subtotal') }} as subtotal,
+        {{ cents_to_dollars('tax_paid') }} as tax_paid,
+        {{ cents_to_dollars('order_total') }} as order_total,
+
+        ---------- timestamps
+        {{ dbt.date_trunc('day','ordered_at') }} as ordered_at
+
     from source
 
 )
