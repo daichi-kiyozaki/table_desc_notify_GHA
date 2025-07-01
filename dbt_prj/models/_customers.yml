@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: customers
+    columns:
+      - name: customer_id
+        description: This is a unique identifier for a customer
+        data_type: numeric
+        tests:
+          - unique
+          - not_null
+
+      - name: first_name
+        description: Customer's first name. PII.
+        data_type: varchar
+
+      - name: last_name
+        description: Customer's last name. PII.
+        data_type: varchar
+
+      - name: first_order
+        description: Date (UTC) of a customer's first order
+        data_type: date
+
+      - name: most_recent_order
+        description: Date (UTC) of a customer's most recent order
+        data_type: date
+
+      - name: number_of_orders
+        description: Count of the number of orders a customer has placed
+        data_type: numeric
+
+      - name: total_order_amount
+        description: Total value (AUD) of a customer's orders
+        data_type: numeric
+
+      - name: created_at
+        data_type: datetime
+
+      - name: updated_at
+        data_type: datetime
+
+      - name: loaded_at
+        data_type: datetime

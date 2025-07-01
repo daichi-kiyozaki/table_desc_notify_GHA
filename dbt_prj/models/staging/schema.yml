@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >
+      顧客ディメンションテーブル。顧客基本情報と注文集計を保持する。
+    columns:
+      - name: customer_id
+        description: "test"
+        data_type: numeric
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        data_type: varchar
+      - name: last_name
+        data_type: varchar
+      - name: created_at
+        data_type: datetime
+      - name: updated_at
+        data_type: datetime
+      - name: loaded_at
+        data_type: datetime
+
+  - name: stg_orders
+    columns:
+      - name: order_id
+        data_type: numeric
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        data_type: numeric
+      - name: order_date
+        data_type: date
+      - name: status
+        data_type: varchar
+        tests:
+          - accepted_values:
+              values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+      - name: created_at
+        data_type: datetime
+      - name: updated_at
+        data_type: datetime
+      - name: loaded_at
+        data_type: datetime
+
+  - name: stg_payments
+    columns:
+      - name: payment_id
+        tests:
+          - unique
+          - not_null
+      - name: order_id,
+        data_type: numeric
+      - name: payment_method
+        tests:
+          - accepted_values:
+              values: ['credit_card', 'coupon', 'bank_transfer', 'gift_card']
+      - name: amount
+        data_type: numeric
+      - name: created_at
+        data_type: datetime
+      - name: updated_at
+        data_type: datetime
+      - name: loaded_at
+        data_type: datetime
