@@ -1,39 +1,51 @@
-name: dbt-table-doc-check
-on: push
+name: dbt-checkpoint
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  check_doc:
-    runs-on: ubuntu-latest
+  path-filter:
+    uses: ./.github/workflows/wc-path-filter.yaml
     permissions:
-      contents: read
+      id-token: write
       pull-requests: write
+      contents: write
 
+  dbt-checkpoint:
+    runs-on: ubuntu-latest
+    env:
+      ACCOUNT: ${{ vars.ACCOUNT }}
+      DATABASE: ${{ vars.DATABASE }}
+      SCHEMA: ${{ vars.SCHEMA }}
+      USER: ${{ vars.USER }}
+      PASSWORD: ${{ secrets.PASSWORD }}
+      ROLE: ${{ vars.ROLE }}
+      WAREHOUSE: ${{ vars.WAREHOUSE }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Get all changed yaml files
+        id: changed-yaml-files
+        uses: tj-actions/changed-files@0c6f2ac4885216b1830ecbcc3573209980c97716 # v41
         with:
-          python-version: '3.10'
+          files: |
+            *.yml
+          base_sha: ${{ inputs.base_ref }}
 
-      - name: Install core tools
+
+      - name: Run dbt checkpoint
         run: |
-          pip install "dbt-core==1.8" "dbt-coverage==0.3"
+          pip install dbt-core = "==1.8.0"
+          pip install dbt-bigquery = "==1.8.0"
+          pip install precommit
 
-      # manifest.json を生成（数秒で完了）
-      - name: Parse dbt project
+      - name: Run dbt checkpoint
         run: |
-          cd dbt_prj
-          dbt parse
-
-      # テーブル description が無ければ exit 1
-      - name: Enforce table descriptions
-        run: |
-          dbt-coverage compute doc \
-            --cov-fail-under 1.0 \
-            --cov-format markdown
-
-      # (任意) PR に結果を貼る
-      - name: Comment on PR
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.enforce.outputs.stdout }}
+          pre-commit run
